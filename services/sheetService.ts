@@ -2,8 +2,6 @@
 import { RawSheetRow, ProcessedSheetRow } from '../types';
 
 const SHEET_ID = '1YBJk78fDNCZW6ev839_JRS57T4nZi90zLFtomK0qnt4';
-const GID = '0'; // GID for the first sheet
-const CSV_EXPORT_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
 
 // Basic CSV line parser that handles quoted fields (simple version)
 function parseCsvLine(line: string): string[] {
@@ -38,11 +36,12 @@ function parseCsvLine(line: string): string[] {
 }
 
 
-export async function fetchSheetData(): Promise<ProcessedSheetRow[]> {
+export async function fetchSheetData(gid: string): Promise<ProcessedSheetRow[]> {
+  const csvExportUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
   try {
-    const response = await fetch(CSV_EXPORT_URL);
+    const response = await fetch(csvExportUrl);
     if (!response.ok) {
-      throw new Error(`Failed to fetch sheet data: ${response.statusText}`);
+      throw new Error(`Failed to fetch sheet data (GID: ${gid}): ${response.statusText}`);
     }
     const csvText = await response.text();
     const lines = csvText.split(/\r?\n/).filter(line => line.trim() !== ''); // Split by newline and remove empty lines
@@ -90,11 +89,9 @@ export async function fetchSheetData(): Promise<ProcessedSheetRow[]> {
 
     return rawRows.map((row, index) => {
       const wordsRaw = row[requiredHeaders.words] || ""; 
-      // Split by comma first to get phrases, then split each phrase by space to get individual words.
-      // Use flatMap to combine all individual words from all phrases into a single array.
       const parsedWords = wordsRaw
         .split(',') 
-        .flatMap(phrase => phrase.trim().split(/\s+/)) // \s+ matches one or more whitespace characters
+        .flatMap(phrase => phrase.trim().split(/\s+/)) 
         .map(word => word.toLowerCase())
         .filter(word => word.length > 0);
 
