@@ -1,0 +1,6 @@
+{
+  "name": "Ricerca di paper segnalati da Google Scholar",
+  "description": "Un'applicazione web per analizzare la frequenza delle parole da un foglio Google, permettendo all'utente di selezionare parole e visualizzare le righe corrispondenti con dettagli specifici.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
